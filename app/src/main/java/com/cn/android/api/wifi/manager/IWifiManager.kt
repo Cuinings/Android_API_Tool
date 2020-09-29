@@ -3,87 +3,67 @@ package com.cn.android.api.wifi.manager
 import android.content.Context
 import android.net.wifi.ScanResult
 import android.net.wifi.WifiConfiguration
+import android.net.wifi.WifiInfo
 import android.net.wifi.WifiManager
-import android.text.TextUtils
 
 class IWifiManager private constructor(context: Context) {
 
     companion object {
         private var instance: IWifiManager? = null//?当前对象可为空 如果为空系统不会报空指针
 
-        fun getInstance(context: Context): IWifiManager {
+        fun getInstance(context: Context): IWifiManager? {
             if (null == instance) {
                 synchronized(IWifiManager::class) {
                     if (null == instance) {
-                        instance =
-                            IWifiManager(context)
+                        instance = IWifiManager(context)
                     }
                 }
             }
-            return instance!!//!!表示当前对象不为空的情况下执行 如果为空系统一定会报异常
+            return instance
         }
     }
 
-    private var mWifiManager: WifiManager? = null
-
-    init {
-        mWifiManager = context.getSystemService(Context.WIFI_SERVICE) as WifiManager?
-    }
+    private var mWifiManager: WifiManager? = context.getSystemService(Context.WIFI_SERVICE) as WifiManager?
 
     fun openWifi(): Boolean {
-        if (null != mWifiManager && !mWifiManager!!.isWifiEnabled)
-            return mWifiManager!!.setWifiEnabled(true)
-        return false
+        return mWifiManager?.setWifiEnabled(true)?: false
     }
 
     fun closeWifi(): Boolean {
-        if (null != mWifiManager && mWifiManager!!.isWifiEnabled)
-            return mWifiManager!!.setWifiEnabled(false)
-        return false
+        return mWifiManager?.setWifiEnabled(false)?: false
     }
 
     fun switchWifiEnabled(): Boolean {
-        if (null != mWifiManager) {
-            return mWifiManager!!.setWifiEnabled(!isWifiEnabled())
-        }
-        return false
+        return mWifiManager?.setWifiEnabled(!isWifiEnabled())?: false
     }
 
     fun isWifiEnabled(): Boolean {
-        if (null != mWifiManager)
-            return mWifiManager!!.isWifiEnabled
-        return false
+        return mWifiManager?.isWifiEnabled?: false
     }
 
     fun startScan(): Boolean {
-        if (null != mWifiManager)
-            return mWifiManager!!.startScan()
-        return false
+        return mWifiManager?.startScan()?: false
     }
 
-    fun getScanResults(): List<ScanResult>? {
-        if (null != mWifiManager)
-            return mWifiManager!!.scanResults
-        return null
+    fun getScanResults(): List<ScanResult> {
+        return mWifiManager?.scanResults?: ArrayList()
+    }
+
+    fun getCurrentWifiInfo(): WifiInfo? {
+        return mWifiManager?.connectionInfo
     }
 
     fun connectWifi(result: ScanResult, password: String): Boolean {
-        if (null == result || TextUtils.isEmpty(password))
+        if (null == result || password?.isEmpty()?:true)
             return false
-        var configuration = hasWifiConfiguration(result.SSID);
-        var netWorkId: Int  = -1
-        if (null == configuration) {
-            configuration = createWifiConfig(result.SSID, password, getCapabilities(result.capabilities))
-            netWorkId = mWifiManager!!.addNetwork(configuration)
-        } else {
-            netWorkId = configuration!!.networkId
-        }
-        if (netWorkId == -1) return false;
-        return mWifiManager!!.enableNetwork(netWorkId, true);
+        var configuration = hasWifiConfiguration(result.SSID)
+        var netWorkId = configuration?.networkId?: mWifiManager?.addNetwork(createWifiConfig(result?.SSID, password, getCapabilities(result?.capabilities)))?: -1
+        if (netWorkId == -1) return false
+        return mWifiManager?.enableNetwork(netWorkId, true)?: false
     }
 
     private fun createWifiConfig(
-        ssid: String?,
+        ssid: String,
         password: String,
         dataType: Data
     ): WifiConfiguration? {
@@ -94,31 +74,64 @@ class IWifiManager private constructor(context: Context) {
         config.allowedPairwiseCiphers.clear()
         config.allowedProtocols.clear()
         config.SSID = StringBuilder("\"").append(ssid).append("\"").toString()
-        if (dataType == Data.WIFI_CIPHER_NOPASS) {
-            config.wepKeys[0] = ""
-            config.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE)
-            config.wepTxKeyIndex = 0
+        when (dataType) {
+            Data.WIFI_CIPHER_NOPASS -> {
+                config.wepKeys[0] = ""
+                config.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE)
+                config.wepTxKeyIndex = 0
+            }
+            Data.WIFI_CIPHER_WEP -> {
+                config.hiddenSSID = true
+                config.wepKeys[0] = "\"" + password + "\""
+                config.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.SHARED)
+                config.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP)
+                config.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP)
+                config.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP40)
+                config.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP104)
+                config.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE)
+                config.wepTxKeyIndex = 0
+            }
+            Data.WIFI_CIPHER_WPA -> {
+                config.preSharedKey = "\"" + password + "\""
+                config.hiddenSSID = true
+                config.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.OPEN)
+                config.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP)
+                config.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK)
+                config.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP)
+                config.allowedProtocols.set(WifiConfiguration.Protocol.WPA)
+                config.status = WifiConfiguration.Status.ENABLED
+            }
+            Data.WIFI_CIPHER_WPA2 -> {
+                config.preSharedKey = "\"" + password + "\""
+                config.hiddenSSID = true
+                config.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.OPEN)
+                config.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP)
+                config.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK)
+                config.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP)
+                config.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP)
+                config.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP)
+                config.status = WifiConfiguration.Status.ENABLED
+            }
         }
         return config
     }
 
     private fun getCapabilities(capabilities: String): Data {
-        if (capabilities.contains("WPA2") or capabilities.contains("WPA-PSK"))
-            return Data.WIFI_CIPHER_WPA2
-        else if (capabilities.contains("capabilities.contains(\"WPA2\")"))
-            return Data.WIFI_CIPHER_WPA
-        else if (capabilities.contains("WEP"))
-            return Data.WIFI_CIPHER_WEP
-        return Data.WIFI_CIPHER_NOPASS
+        return when {
+            capabilities.contains("WPA2") or capabilities.contains("WPA-PSK") -> Data.WIFI_CIPHER_WPA2
+            capabilities.contains("capabilities.contains(\"WPA2\")") -> Data.WIFI_CIPHER_WPA
+            capabilities.contains("WEP") -> Data.WIFI_CIPHER_WEP
+            else -> Data.WIFI_CIPHER_NOPASS
+        }
     }
 
     private fun hasWifiConfiguration(ssid: String): WifiConfiguration? {
-        if (null == mWifiManager) return null
-        var wifiConfigurations = mWifiManager!!.configuredNetworks
-        wifiConfigurations!!.forEach {
-            if (it.equals(ssid))
+        var wifiConfigurations = mWifiManager?.configuredNetworks?: null
+        wifiConfigurations?.forEach {
+            if (it.equals(ssid)) {
                 return it
-        }
+            }
+        }?:return null
         return null
     }
 
