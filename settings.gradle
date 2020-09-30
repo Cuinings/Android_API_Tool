@@ -1,2 +1,4 @@
 rootProject.name='Android_API_Tool'
-include ':app'
+include ':android_api_java'
+include ':android_api_kotlin'
+include ':sample'
