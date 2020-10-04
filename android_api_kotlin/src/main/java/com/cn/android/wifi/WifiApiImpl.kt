@@ -12,20 +12,10 @@ import com.cn.android.wifi.IWifiManager
 class WifiApiImpl: WifiApi {
 
     override fun enabledWifi(context: Context, boolean: Boolean): Boolean {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            context.startActivity(Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY))
-            return false
-        }
         return IWifiManager.getInstance(context).enabledWifi(boolean)
     }
 
     override fun enabledWifi(context: Context): Boolean {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            var intent = Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            context.startActivity(intent)
-            return false
-        }
         return IWifiManager.getInstance(context).enabledWifi()
     }
 

@@ -1,22 +1,27 @@
 package com.cn.android.wifi
 
 import android.content.Context
+import android.content.Intent
 import android.net.wifi.ScanResult
 import android.net.wifi.WifiConfiguration
 import android.net.wifi.WifiInfo
 import android.net.wifi.WifiManager
+import android.os.Build
+import android.provider.Settings
 
 class IWifiManager private constructor(context: Context) {
 
     companion object {
+
+        private var ctx: Context? = null;
         @Volatile
         private var instance: IWifiManager? = null
 
         fun getInstance(context: Context): IWifiManager {
+            ctx = context
             @Synchronized
             if (null == instance) {
-                instance =
-                    IWifiManager(context)
+                instance = IWifiManager(context)
             }
             return instance as IWifiManager
         }
@@ -29,10 +34,22 @@ class IWifiManager private constructor(context: Context) {
     }
 
     fun enabledWifi(): Boolean {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            var intent = Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            ctx?.startActivity(intent)
+            return false
+        }
         return mWifiManager?.setWifiEnabled(!isWifiEnabled())?: false
     }
 
     fun enabledWifi(boolean: Boolean): Boolean {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            var intent = Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            ctx?.startActivity(intent)
+            return false
+        }
         return mWifiManager?.setWifiEnabled(boolean)?: false
     }
 

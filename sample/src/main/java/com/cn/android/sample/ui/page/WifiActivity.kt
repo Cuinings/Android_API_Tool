@@ -10,7 +10,7 @@ import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.cn.android.API.*
-import com.cn.android.API.Companion.getWifiApi
+//import com.cn.android.API.Companion.getWifiApi
 import com.cn.android.sample.databinding.ActivityWifiBinding
 import com.cn.android.sample.ui.adapter.WifiAdapter
 import java.util.concurrent.Executors

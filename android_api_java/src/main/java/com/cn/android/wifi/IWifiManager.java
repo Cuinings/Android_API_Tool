@@ -38,7 +38,7 @@ public class IWifiManager {
 
     public boolean enableWifi() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            Intent intent = new Intent(Settings.ACTION_WIFI_SETTINGS);
+            Intent intent = new Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
             return false;
@@ -49,7 +49,7 @@ public class IWifiManager {
 
     public boolean enableWifi(boolean enable) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            Intent intent = new Intent(Settings.ACTION_WIFI_SETTINGS);
+            Intent intent = new Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
             return false;
