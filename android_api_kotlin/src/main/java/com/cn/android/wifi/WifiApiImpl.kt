@@ -11,28 +11,22 @@ import com.cn.android.wifi.IWifiManager
 
 class WifiApiImpl: WifiApi {
 
-    override fun openWifi(context: Context): Boolean {
+    override fun enabledWifi(context: Context, boolean: Boolean): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             context.startActivity(Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY))
             return false
         }
-        return IWifiManager.getInstance(context).openWifi()
+        return IWifiManager.getInstance(context).enabledWifi(boolean)
     }
 
-    override fun closeWifi(context: Context): Boolean {
+    override fun enabledWifi(context: Context): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            context.startActivity(Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY))
+            var intent = Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            context.startActivity(intent)
             return false
         }
-        return IWifiManager.getInstance(context).closeWifi()
-    }
-
-    override fun switchWifiEnabled(context: Context): Boolean {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            context.startActivity(Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY))
-            return false
-        }
-        return IWifiManager.getInstance(context).switchWifiEnabled()
+        return IWifiManager.getInstance(context).enabledWifi()
     }
 
     override fun isWifiEnabled(context: Context): Boolean {

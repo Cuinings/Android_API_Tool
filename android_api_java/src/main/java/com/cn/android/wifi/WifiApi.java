@@ -4,22 +4,17 @@ import android.content.Context;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiInfo;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.List;
+
+import kotlin.reflect.KProperty1;
 
 public interface WifiApi {
 
-    /**
-     * 开启/关闭wifi
-     * @param context
-     * @return
-     */
     boolean enabledWifi(Context context);
 
-    /**
-     * 开启/关闭wifi
-     * @param enable boolean
-     * @return boolean
-     */
     boolean enabledWifi(Context context, boolean enable);
 
     boolean isWifiEnabled(Context context);

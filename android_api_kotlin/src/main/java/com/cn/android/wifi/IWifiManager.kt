@@ -28,16 +28,12 @@ class IWifiManager private constructor(context: Context) {
         mWifiManager = context.getSystemService(Context.WIFI_SERVICE) as WifiManager?
     }
 
-    fun openWifi(): Boolean {
-        return mWifiManager?.setWifiEnabled(true)?: false
-    }
-
-    fun closeWifi(): Boolean {
-        return mWifiManager?.setWifiEnabled(false)?: false
-    }
-
-    fun switchWifiEnabled(): Boolean {
+    fun enabledWifi(): Boolean {
         return mWifiManager?.setWifiEnabled(!isWifiEnabled())?: false
+    }
+
+    fun enabledWifi(boolean: Boolean): Boolean {
+        return mWifiManager?.setWifiEnabled(boolean)?: false
     }
 
     fun isWifiEnabled(): Boolean {

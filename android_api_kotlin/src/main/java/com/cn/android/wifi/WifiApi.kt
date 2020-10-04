@@ -6,11 +6,9 @@ import android.net.wifi.WifiInfo
 
 interface WifiApi {
 
-    fun openWifi(context: Context): Boolean
+    fun enabledWifi(context: Context): Boolean
 
-    fun closeWifi(context: Context): Boolean
-
-    fun switchWifiEnabled(context: Context): Boolean
+    fun enabledWifi(context: Context, boolean: Boolean): Boolean
 
     fun isWifiEnabled(context: Context): Boolean
 
